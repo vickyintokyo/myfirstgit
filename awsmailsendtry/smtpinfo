@@ -1,0 +1,7 @@
+---
+:smtp_server: email-smtp.us-west-2.amazonaws.com
+:port: 587
+#:helo: gmail.com
+:username: AKIAJYY65N6LVRHD4NBQ
+:password: AmAzFB9xw24UUjcoa8cacSA7M1LjiHmJX38R35mYpBj3
+:authentication: :plain
