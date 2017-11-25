@@ -27,7 +27,7 @@ class Test1
   toppage = []
   alldata = []
 
-  def getTopPage(counter)
+  def getTopPage(counter,stockprice)
     topData = []
     detail = []
     totalData = []
@@ -39,7 +39,6 @@ class Test1
     #ranking = doc.css('ul#st01 yjS').css('li')
     toppage = website.css('ul.m-newsList').css('li').css('a')
     urlcount = toppage.length
-    puts urlcount
     i = 4
     while i <= 49 # changed for the all the URLs
       title = toppage[i].content
@@ -59,8 +58,8 @@ class Test1
     val1 = getUniquestockcodes(stockData,counter)
     puts val1.length
     puts val1
-    val2 = getStockInformation(val1,totalData)
-    puts val2.length
+    val2 = getStockInformation(val1,totalData,stockprice)
+    #puts val2.length
     return val2
   end # end of getTopPage
 
@@ -69,7 +68,7 @@ class Test1
     return val
   end #end of getUniquestockcodes
 
-  def getStockInformation(stockData,totalData)
+  def getStockInformation(stockData,totalData,stockprice)
     count = stockData.length
     stockinfo = []
     i = 0;
@@ -84,13 +83,15 @@ class Test1
     for i in 0 .. count
         indexval = totalData.index stockData[i]
         if indexval != nil
-          stockinfo.push(totalData[indexval-1])
-          stockinfo.push(totalData[indexval])
-          stockinfo.push(totalData[indexval+1])
-          stockinfo.push(totalData[indexval+2])
-          stockinfo.push(totalData[indexval+3])
-          stockinfo.push(totalData[indexval+4])
-        end #end of if
+          if Integer(totalData[indexval+3].tr(',','')) <= stockprice # trim the , and then convert to integer for comparison
+            stockinfo.push(totalData[indexval-1])
+            stockinfo.push(totalData[indexval])
+            stockinfo.push(totalData[indexval+1])
+            stockinfo.push(totalData[indexval+2])
+            stockinfo.push(totalData[indexval+3])
+            stockinfo.push(totalData[indexval+4])
+          end #end of if stockprice
+        end #end of if indexval
         i+=1
     end #end of for
     return stockinfo
@@ -202,9 +203,10 @@ end #end of class
 
 var1 = Test1.new
 #compare the different lists in this function and return the final result to the gmail.
-repeatcounter = 4; # this defines how many times the specific stock code is repeated in the whole set of data
+repeatcounter = 3 # this defines how many times the specific stock code is repeated in the whole set of data
 # this counter should be configurable parameter which can be set.
-alldata = var1.getTopPage(repeatcounter)
+stockprice = 1000
+alldata = var1.getTopPage(repeatcounter,stockprice)
 table  = ""
 #below one line forms the html table with all the data which will sent via email.
 table = "<html>#{var1.ToTitle(alldata)}<body><table>#{var1.ToHeader(alldata)}#{var1.ToRows(alldata)}</table></body></html>"
