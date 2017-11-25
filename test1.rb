@@ -30,6 +30,9 @@ class Test1
   def getTopPage()
     topData = []
     detail = []
+    totalData = []
+    stockData = []
+    stockcodeData = []
     doc = open('https://www.nikkei.com/markets/ranking/')
     #page = open('http://www.nokogiri.org/tutorials/installing_nokogiri.html')
     website = Nokogiri::HTML(doc)
@@ -38,7 +41,7 @@ class Test1
     urlcount = toppage.length
     puts urlcount
     i = 4
-    while i <= 50 # changed for the all the URLs
+    while i <= 49 # changed for the all the URLs
       title = toppage[i].content
       if title == "値上がり" or title == "今週の値上がり" or title == "前月比値上がり" or title == "株価検索急増" or title == "予想PER高位" or title == "PBR高位"
         url = toppage[i].values
@@ -47,17 +50,75 @@ class Test1
         eachpage = open(ss)
         webpage = Nokogiri::HTML(eachpage)
         topData = retrievedata(webpage, title)
-        puts topData
-        return topData
+        stockcodeData = retrievestockcodes(webpage, title)
+        stockData.push(*stockcodeData)
+        totalData.push(*topData)
       end #end of if
       i+=1
     end #end of while
+    val1 = getUniquestockcodes(stockData)
+    val2 = getStockInformation(val1,totalData)
+    return val2
   end # end of getTopPage
 
-  def comparedata(stockcodes)
+  def getUniquestockcodes(stockData)
+    val = stockData.select {|e| stockData.count(e) > 1}.uniq
+    return val
+  end #end of getUniquestockcodes
 
-  end
+  def getStockInformation(stockData,totalData)
+    count = stockData.length
+    stockinfo = []
+    i = 0;
+    # below hardcoding is needed for setting up the the header and title information
+    stockinfo.push("Title")
+    stockinfo.push("順位")
+    stockinfo.push("証券コード")
+    stockinfo.push("銘柄名")
+    stockinfo.push("値上がり率(%)")
+    stockinfo.push("現在値（円）")
+    stockinfo.push("前日比（円）")
+    for i in 0 .. count
+        indexval = totalData.index stockData[i]
+        if indexval != nil
+          stockinfo.push(totalData[indexval-1])
+          stockinfo.push(totalData[indexval])
+          stockinfo.push(totalData[indexval+1])
+          stockinfo.push(totalData[indexval+2])
+          stockinfo.push(totalData[indexval+3])
+          stockinfo.push(totalData[indexval+4])
+        end #end of if
+        i+=1
+    end #end of for
+    return stockinfo
+  end # end of getStockInformation
 
+  def retrievestockcodes(webpage,title)
+    headers =[]
+    top = []
+    webpage.xpath('//*/table[@class="tblModel-1"]/thead/tr/th') .each do |th|
+      headers <<  th.text
+    end #end of th do
+    top.push(title)
+    #top.push(headers[1],headers[2],headers[3],headers[4],headers[5],headers[6])
+    rows = webpage.xpath('//*/table[@class="tblModel-1"]/tbody/tr')
+    details = rows.collect do |row|
+    [
+      #[headers[1],'td[2]/text()'],
+      [headers[2],'td[3]/a/text()'],
+      #[headers[3],'td[4]/a/text()'],
+      #[headers[4],'td[5]/text()'],
+      #[headers[5],'td[6]/text()'],
+      #[headers[6],'td[7]/span/text()'],
+    ].each do |name, xpath|
+          contents = []
+          detail = row.at_xpath(xpath).to_s.strip
+          contents.push(*detail)
+          top.push(*contents)
+        end # end of xpath do
+      end # end of row do
+      return top
+  end # end of retrievestockcodes
 
   def retrievedata(webpage,title)
     headers =[]
@@ -146,5 +207,5 @@ table3 ="#{var1.ToRows(alldata)}</table></body></html>"
 table.concat(table1)
 table.concat(table2)
 table.concat(table3)
-
-#var1.sendEmail(table)
+#puts table
+var1.sendEmail(table)
