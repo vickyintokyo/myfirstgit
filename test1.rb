@@ -27,7 +27,7 @@ class Test1
   toppage = []
   alldata = []
 
-  def getTopPage()
+  def getTopPage(counter)
     topData = []
     detail = []
     totalData = []
@@ -56,13 +56,16 @@ class Test1
       end #end of if
       i+=1
     end #end of while
-    val1 = getUniquestockcodes(stockData)
+    val1 = getUniquestockcodes(stockData,counter)
+    puts val1.length
+    puts val1
     val2 = getStockInformation(val1,totalData)
+    puts val2.length
     return val2
   end # end of getTopPage
 
-  def getUniquestockcodes(stockData)
-    val = stockData.select {|e| stockData.count(e) > 1}.uniq
+  def getUniquestockcodes(stockData,counter)
+    val = stockData.select {|e| stockData.count(e) > counter}.uniq
     return val
   end #end of getUniquestockcodes
 
@@ -199,13 +202,10 @@ end #end of class
 
 var1 = Test1.new
 #compare the different lists in this function and return the final result to the gmail.
-alldata = var1.getTopPage()
-table =""
-table1 = "<html>#{var1.ToTitle(alldata)}<body>"
-table2 ="<table>#{var1.ToHeader(alldata)}"
-table3 ="#{var1.ToRows(alldata)}</table></body></html>"
-table.concat(table1)
-table.concat(table2)
-table.concat(table3)
-#puts table
-var1.sendEmail(table)
+repeatcounter = 4; # this defines how many times the specific stock code is repeated in the whole set of data
+# this counter should be configurable parameter which can be set.
+alldata = var1.getTopPage(repeatcounter)
+table  = ""
+#below one line forms the html table with all the data which will sent via email.
+table = "<html>#{var1.ToTitle(alldata)}<body><table>#{var1.ToHeader(alldata)}#{var1.ToRows(alldata)}</table></body></html>"
+var1.sendEmail(table) # send email function to send email
