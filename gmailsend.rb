@@ -5,7 +5,7 @@ password = 'testing123'
 
 gmail = Gmail.connect(username, password)
 # play with your gmail...
-puts 'i could get in'
+#puts 'i could get in'
 gmail.logout
 
 gmail.deliver do

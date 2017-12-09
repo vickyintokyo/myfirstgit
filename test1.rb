@@ -150,7 +150,7 @@ class Test1
       end # end of row do
       return top
   end # end of retrievedata
-
+#digital ocean # execute batch at specific time
   def ToTitle(topArray)
     titles = "<title>#{topArray[0]}</title>"
   end # end of ToTitle
@@ -210,4 +210,5 @@ alldata = var1.getTopPage(repeatcounter,stockprice)
 table  = ""
 #below one line forms the html table with all the data which will sent via email.
 table = "<html>#{var1.ToTitle(alldata)}<body><table>#{var1.ToHeader(alldata)}#{var1.ToRows(alldata)}</table></body></html>"
+#puts table
 var1.sendEmail(table) # send email function to send email
